@@ -14,7 +14,7 @@ namespace TextFileConverter.Library.Tests
     public class ApprovalTest
     {
         [Test]
-        public void VerifyFixedWidthOutput()
+        public void VerifyCSVToFixedWidthConversion()
         {
             var inTemplate = new Input()
             {
