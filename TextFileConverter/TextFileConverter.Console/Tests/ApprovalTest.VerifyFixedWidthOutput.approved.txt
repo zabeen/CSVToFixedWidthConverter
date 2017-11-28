@@ -1,4 +1,4 @@
-| Pub Date    |                       Title | Authors                         |
+﻿| Pub Date    |                       Title | Authors                         |
 |=============================================================================|
 | 28 Nov 2008 |             Learning C# 3.0 | Jesse Liberty & Brian MacDonald |
 | 16 Sep 2013 |               Head First C# | Jennifer Greene & Andrew Ste... |

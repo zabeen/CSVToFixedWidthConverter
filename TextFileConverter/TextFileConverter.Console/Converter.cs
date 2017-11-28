@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -10,41 +11,43 @@ namespace TextFileConverter.Console
 
     public class Converter
     {
-        public string Output => _output;
+        public string Output => string.Join(Environment.NewLine,_output);
 
-        struct Line
+        private Input _inTemplate;
+        private Output _outTemplate;
+        private List<string> _output = new List<string>();
+
+        public Converter(Input inTemplate, Output outTemplate)
         {
-            public string PublicationDate{ get; set; }
-            public string Title { get; set; }
-            public string Authors { get; set; }
+            _inTemplate = inTemplate;
+            _outTemplate = outTemplate;
+
+            if (_inTemplate.Columns.Count != _outTemplate.Columns.Count)
+                throw new ArgumentException("Number of columns in input and output templates must match.");
         }
 
-        private string _inFileLocation;
-        private Input _inFileTemplate;
-        private Output _outFileTemplate;
-        private string _output;
-
-        public Converter(string inFileLocation, Input inFileTemplate, Output outFileTemplate)
-        {
-            _inFileLocation = inFileLocation;
-            _inFileTemplate = inFileTemplate;
-            _outFileTemplate = outFileTemplate;
-        }
-
-        public void ConvertInputToOutput(string outFileLocation)
+        public void ConvertInputToOutput(string inPath, string outPath)
         {
             try
             {
-                CheckInputFile();
+                CheckInputFile(inPath);
+                var lines = File.ReadAllLines(inPath);
 
-                // read in file contents and split each line by comma delimiter
-                List<string[]> lines = File.ReadLines(_inFileLocation).Select(line => line.Split(_inFileTemplate.ColumnSeperator)).ToList();
-
-                // convert values in each string[] to fixed width
-                foreach (string[] line in lines)
+                if (_outTemplate.IsFirstLineHeader)
                 {
-
+                    AddNewLineToOutput(_outTemplate.Columns.Select(c => c.HeaderText).ToArray(), true);
+                    _output.Add(_outTemplate.HeaderSeperator);
                 }
+
+                for (int lineNo = 0; lineNo < lines.Length; lineNo++)
+                {
+                    if (lineNo == 0 && _inTemplate.IsFirstLineHeader)
+                        continue;
+
+                    AddNewLineToOutput(lines[lineNo].Split(_inTemplate.ColumnSeperator), false);
+                }
+
+                File.WriteAllLines(outPath, _output);
             }
             catch (Exception ex)
             {
@@ -52,27 +55,77 @@ namespace TextFileConverter.Console
             }
         }
 
-        private void CheckInputFile()
+        private void CheckInputFile(string path)
         {
-            if (!File.Exists(_inFileLocation))
-                throw new FileNotFoundException($"Input file \"{_inFileLocation}\" was not found.");
+            if (!File.Exists(path))
+                throw new FileNotFoundException($"Input file was not found at path: {path}");
 
-            string[] firstLine = File.ReadLines(_inFileLocation).First().Split(_inFileTemplate.ColumnSeperator);
+            var firstLine = File.ReadLines(path).First().Split(_inTemplate.ColumnSeperator);
 
-            if (firstLine.Length != _inFileTemplate.ColumnCount)
-                throw new FileFormatException($"Input file \"{_inFileLocation}\" is not of the expected format.");
+            if (firstLine.Length != _inTemplate.Columns.Count)
+                throw new FileFormatException("Input file has an unexpected number of columns.");
+
+            if (_inTemplate.IsFirstLineHeader)
+            {
+                for (int i = 0; i < firstLine.Length; i++)
+                {
+                    if (!firstLine[i].Equals(_inTemplate.Columns[i].HeaderText))
+                        throw new FileFormatException($"{firstLine[i]} is an unexpected column header; expecting: {_inTemplate.Columns[i].HeaderText}");
+                }
+            }
         }
 
-        private void ConvertStringToFixedWidth(ref string str, Column col)
+        private void AddNewLineToOutput(string[] cells, bool isHeader)
+        {
+            for (int colNo = 0; colNo < _inTemplate.Columns.Count; colNo++)
+            {
+                FormatStringAsOutput(ref cells[colNo], isHeader, _inTemplate.Columns[colNo], _outTemplate.Columns[colNo]);
+            }
+
+            _output.Add(CreateNewLine(cells));
+        }
+
+        private string CreateNewLine(IEnumerable<string> content)
+        {
+            var cells = content.ToArray();
+            var sep = _outTemplate.ColumnSeperator.ToString();
+
+            for (int i = 0; i < cells.Length; i++)
+            {
+                cells[i] = cells[i].PadRight(cells[i].Length + _outTemplate.ColumnPadding);
+                cells[i] = cells[i].PadLeft(cells[i].Length + _outTemplate.ColumnPadding);
+            }
+
+            return $"{_outTemplate.RowHeader}{string.Join(sep, cells)}{_outTemplate.RowTerminator}";
+        }
+
+        private void FormatStringAsOutput(ref string str, bool isHeader, Input.InColumn inCol, Output.OutColumn outCol)
         {
             str = str.Trim();
 
-            if (str.Length > col.MaxWidth)
-                str = $"{str.Substring(0, col.MaxWidth - _outFileTemplate.TruncatedMarker.Length)}{_outFileTemplate.TruncatedMarker}";
-            else if (str.Length < col.MaxWidth)
-                str = (col.Pad == Pad.Left) ? str.PadLeft(col.MaxWidth) : str.PadRight(col.MaxWidth);
+            if (!isHeader && outCol.IsDateTime)
+            {
+                DateTime strDt;
+
+                try
+                {
+                    strDt = Convert.ToDateTime(str, new CultureInfo(_inTemplate.CultureName));
+                }
+                catch (FormatException)
+                {
+                    throw new FormatException($"{str} is not a valid date.");
+                }
+
+                str = strDt.ToString(outCol.DateTimeFormat, new CultureInfo(_outTemplate.CultureName));
+            }
+
+            if (outCol.IsFixedWidth)
+            {
+                if (str.Length > outCol.MaxWidth)
+                    str = $"{str.Substring(0, outCol.MaxWidth - _outTemplate.TruncatedMarker.Length)}{_outTemplate.TruncatedMarker}";
+                else if (str.Length < outCol.MaxWidth)
+                    str = (outCol.Pad == Pad.Left) ? str.PadLeft(outCol.MaxWidth) : str.PadRight(outCol.MaxWidth);
+            }
         }
-
-
     }
 }

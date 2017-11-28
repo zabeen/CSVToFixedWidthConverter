@@ -18,35 +18,39 @@ namespace TextFileConverter.Console.Tests
         {
             var inTemplate = new Input()
             {
-                IsFirstLineColumnHeader = true,
-                ColumnSeperator = ',',             
-                Columns = new List<Column>()
+                IsFirstLineHeader = true,
+                ColumnSeperator = ',',
+                CultureName = "en-GB",
+                Columns = new List<Input.InColumn>()
                 {
-                    new Column(){HeaderText = "Publication Date", IsFixedWidth = false},
-                    new Column(){HeaderText = "Title", IsFixedWidth = false},
-                    new Column(){HeaderText = "Authors", IsFixedWidth = false}
+                    new Input.InColumn(){HeaderText = "Publication Date"},
+                    new Input.InColumn(){HeaderText = "Title"},
+                    new Input.InColumn(){HeaderText = "Authors"}
                 }              
             };
 
             var outTemplate = new Output()
             {
-                IsFixedWidth = true,
-                LineWidth = 79,
-                IsFirstLineColumnHeader = true,
+                IsFirstLineHeader = true,
+                CultureName = "en-GB",
+                HeaderSeperator = "|=============================================================================|",
                 RowHeader = '|',
                 RowTerminator = '|',
                 ColumnSeperator = '|',
                 ColumnPadding = 1,
-                Columns = new List<Column>()
+                TruncatedMarker = "...",
+                Columns = new List<Output.OutColumn>()
                 {
-                    new Column(){HeaderText = "Pub Date", IsFixedWidth = true, MaxWidth = 11},
-                    new Column(){HeaderText = "Title", IsFixedWidth = true, MaxWidth = 27},
-                    new Column(){HeaderText = "Authors", IsFixedWidth = true, MaxWidth = 31}
+                    new Output.OutColumn(){HeaderText = "Pub Date", IsFixedWidth = true, MaxWidth = 11, Pad = Pad.Right, IsDateTime = true, DateTimeFormat = "dd MMM yyyy"},
+                    new Output.OutColumn(){HeaderText = "Title", IsFixedWidth = true, MaxWidth = 27, Pad = Pad.Left},
+                    new Output.OutColumn(){HeaderText = "Authors", IsFixedWidth = true, MaxWidth = 31, Pad = Pad.Right}
                 }
             };
 
-            var converter = new Converter($"{TestContext.CurrentContext.TestDirectory}\\Files\\input.csv", inTemplate, outTemplate);
-            converter.ConvertInputToOutput($"{TestContext.CurrentContext.TestDirectory}\\Files\\output.txt");
+
+            var dir = $"{TestContext.CurrentContext.TestDirectory}\\Files\\";
+            var converter = new Converter(inTemplate, outTemplate);
+            converter.ConvertInputToOutput($"{dir}input.csv", $"{dir}output.txt");
             Approvals.Verify(converter.Output);
         }
     }
