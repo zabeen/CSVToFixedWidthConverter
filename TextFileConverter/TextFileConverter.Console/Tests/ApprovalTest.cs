@@ -14,7 +14,7 @@ namespace TextFileConverter.Library.Tests
     public class ApprovalTest
     {
         [Test]
-        public void VerifyCSVToFixedWidthConversion()
+        public void VerifyCsvToFixedWidthConversion()
         {
             var inTemplate = new Input()
             {
@@ -50,7 +50,10 @@ namespace TextFileConverter.Library.Tests
 
             var dir = $"{TestContext.CurrentContext.TestDirectory}\\Files\\";
             var converter = new Converter(inTemplate, outTemplate);
+
+            //todo: input file is read from this location, but output file does not seem to write out to files dir - not sure why!
             converter.ConvertInputToOutput($"{dir}input.csv", $"{dir}output.txt");
+
             Approvals.Verify(converter.Output);
         }
     }
