@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TextFileConverter.Console
+namespace TextFileConverter.Library
 {
 
     public class Converter

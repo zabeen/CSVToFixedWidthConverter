@@ -6,7 +6,7 @@ using System.Security.AccessControl;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TextFileConverter.Console
+namespace TextFileConverter.Library
 {
     public enum Pad
     {

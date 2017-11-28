@@ -5,9 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using TextFileConverter.Console;
+using TextFileConverter.Library;
 
-namespace TextFileConverter.Console.Tests
+namespace TextFileConverter.Library.Tests
 {
     [TestFixture]
     [UseReporter(typeof(NUnitReporter))]
