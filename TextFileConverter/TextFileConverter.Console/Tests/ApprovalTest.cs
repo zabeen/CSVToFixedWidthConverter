@@ -46,15 +46,13 @@ namespace TextFileConverter.Library.Tests
                     new Output.OutColumn(){HeaderText = "Authors", IsFixedWidth = true, MaxWidth = 31, Pad = Pad.Right}
                 }
             };
-
-
-            var dir = $"{TestContext.CurrentContext.TestDirectory}\\Files\\";
             var converter = new Converter(inTemplate, outTemplate);
 
-            //todo: input file is read from this location, but output file does not seem to write out to files dir - not sure why!
-            converter.ConvertInputToOutput($"{dir}input.csv", $"{dir}output.txt");
+            var inPath = $"{TestContext.CurrentContext.TestDirectory}\\Files\\input.csv";
+            var outPath = $"{Environment.GetFolderPath(Environment.SpecialFolder.Desktop)}\\output.txt";
+            converter.ConvertInputToOutput(inPath, outPath);
 
-            Approvals.Verify(converter.Output);
+            Approvals.Verify(File.ReadAllText(outPath));
         }
     }
 }
