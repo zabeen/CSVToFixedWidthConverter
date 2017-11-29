@@ -46,7 +46,7 @@ namespace TextFileConverter.Library.Tests
             };
             var converter = new Converter(inTemplate, outTemplate);
 
-            var inPath = $"{TestContext.CurrentContext.TestDirectory}\\Files\\input.csv";
+            var inPath = $"{TestContext.CurrentContext.TestDirectory}\\Tests\\input.csv";
             var outPath = $"{Environment.GetFolderPath(Environment.SpecialFolder.Desktop)}\\output.txt";
             converter.ConvertInputToOutput(inPath, outPath);
 

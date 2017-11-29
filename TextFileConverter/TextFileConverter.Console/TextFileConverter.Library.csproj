@@ -67,7 +67,7 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
-    <Content Include="Files\input.csv">
+    <Content Include="Tests\input.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
