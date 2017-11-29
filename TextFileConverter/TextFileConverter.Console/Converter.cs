@@ -127,8 +127,10 @@ namespace TextFileConverter.Library
 
             if (outCol.IsFixedWidth)
             {
+                var truncMarker = _outTemplate.TruncatedMarker ?? string.Empty;
+
                 if (str.Length > outCol.MaxWidth)
-                    str = $"{str.Substring(0, outCol.MaxWidth - _outTemplate.TruncatedMarker.Length)}{_outTemplate.TruncatedMarker}";
+                    str = $"{str.Substring(0, outCol.MaxWidth - truncMarker.Length)}{truncMarker}";
                 else if (str.Length < outCol.MaxWidth)
                     str = (outCol.Pad == Pad.Left) ? str.PadLeft(outCol.MaxWidth) : str.PadRight(outCol.MaxWidth);
             }
