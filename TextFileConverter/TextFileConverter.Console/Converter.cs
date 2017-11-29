@@ -56,7 +56,7 @@ namespace TextFileConverter.Library
             var firstLine = File.ReadLines(path).First().Split(_inTemplate.ColumnSeperator);
 
             if (firstLine.Length != _inTemplate.Columns.Count)
-                throw new FileFormatException("Input file has an unexpected number of columns.");
+                throw new FileFormatException($"Input file has {firstLine.Length} column(s) when split by '{_inTemplate.ColumnSeperator}'; expected {_inTemplate.Columns.Count} column(s).");
 
             if (_inTemplate.IsFirstLineHeader)
             {
