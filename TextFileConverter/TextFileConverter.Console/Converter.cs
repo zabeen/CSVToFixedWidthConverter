@@ -19,12 +19,9 @@ namespace TextFileConverter.Library
 
         public Converter(Input inTemplate, Output outTemplate)
         {
-            _inTemplate = inTemplate;
-            _outTemplate = outTemplate;
-
             try
             {
-                CompareTemplates();
+                SetTemplates(inTemplate, outTemplate);
             }
             catch (Exception ex)
             {
@@ -61,10 +58,13 @@ namespace TextFileConverter.Library
             }
         }
 
-        private void CompareTemplates()
+        private void SetTemplates(Input inTemplate, Output outTemplate)
         {
-            if (_inTemplate.Columns.Count != _outTemplate.Columns.Count)
+            if (inTemplate.Columns.Count != outTemplate.Columns.Count)
                 throw new ArgumentException("Number of columns in input and output templates must match.");
+
+            _inTemplate = inTemplate;
+            _outTemplate = outTemplate;
         }
 
         private void CheckInputFile(string path)
