@@ -77,7 +77,9 @@ namespace TextFileConverter.Library
             if (_outTemplate.IsFirstLineHeader)
             {
                 output.Add(CreateNewLine(_outTemplate.Columns.Select(c => c.HeaderText).ToArray(), true));
-                output.Add(_outTemplate.HeaderSeperator);
+
+                if (_outTemplate.HeaderSeperator != null)
+                    output.Add(_outTemplate.HeaderSeperator);
             }
 
             for (int lineNo = 0; lineNo < lines.Length; lineNo++)
