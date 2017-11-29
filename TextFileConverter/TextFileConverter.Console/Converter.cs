@@ -111,32 +111,32 @@ namespace TextFileConverter.Library
 
             if (!isHeaderText && outCol.IsDateTime)
             {
-                try
-                {
-                    var inCulture = CreateCultureInfo(inCol.CultureName);
-                    var outCulture = CreateCultureInfo(outCol.CultureName);
-
-                    DateTime strDt = Convert.ToDateTime(str, inCulture);
-                    str = strDt.ToString(outCol.DateTimeFormat, outCulture);
-                }
-                catch (FormatException)
-                {
-                    throw new FormatException($"Could not convert '{str}' to a valid date when using culture '{inCol.CultureName}'.");
-                }              
+                FormatAsDateTimeString(ref str, inCol.CultureName, outCol.CultureName, outCol.DateTimeFormat);
             }
 
             if (outCol.IsFixedWidth)
             {
-                var truncMarker = _outTemplate.TruncatedMarker ?? string.Empty;
-
-                if (str.Length > outCol.MaxWidth)
-                    str = $"{str.Substring(0, outCol.MaxWidth - truncMarker.Length)}{truncMarker}";
-                else if (str.Length < outCol.MaxWidth)
-                    str = (outCol.Pad == Pad.Left) ? str.PadLeft(outCol.MaxWidth) : str.PadRight(outCol.MaxWidth);
+                ConvertToFixedWidth(ref str, outCol);
             }
 
-            str = str.PadRight(str.Length + _outTemplate.ColumnPadding);
-            str = str.PadLeft(str.Length + _outTemplate.ColumnPadding);
+            AddColumnPadding(ref str);
+        }
+
+        private void FormatAsDateTimeString(ref string str, string inCultureName, string outCultureName, string outDateTimeFormat)
+        {
+            try
+            {
+                var inCulture = CreateCultureInfo(inCultureName);
+                var outCulture = CreateCultureInfo(outCultureName);
+
+                DateTime strDt = Convert.ToDateTime(str, inCulture);
+                str = strDt.ToString(outDateTimeFormat, outCulture);
+            }
+            catch (FormatException)
+            {
+                throw new FormatException(
+                    $"Could not convert '{str}' to a valid date when using culture '{inCultureName}'.");
+            }
         }
 
         private CultureInfo CreateCultureInfo(string cultureName)
@@ -151,6 +151,22 @@ namespace TextFileConverter.Library
             {
                 throw new CultureNotFoundException($"{ex.InvalidCultureName} is an invalid culture name.");
             }
+        }
+
+        private void ConvertToFixedWidth(ref string str, Output.OutColumn outCol)
+        {
+            var truncMarker = _outTemplate.TruncatedMarker ?? string.Empty;
+
+            if (str.Length > outCol.MaxWidth)
+                str = $"{str.Substring(0, outCol.MaxWidth - truncMarker.Length)}{truncMarker}";
+            else if (str.Length < outCol.MaxWidth)
+                str = (outCol.Pad == Pad.Left) ? str.PadLeft(outCol.MaxWidth) : str.PadRight(outCol.MaxWidth);
+        }
+
+        private void AddColumnPadding(ref string str)
+        {
+            str = str.PadRight(str.Length + _outTemplate.ColumnPadding);
+            str = str.PadLeft(str.Length + _outTemplate.ColumnPadding);
         }
     }
 }
