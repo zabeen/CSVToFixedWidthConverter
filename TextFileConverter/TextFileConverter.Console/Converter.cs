@@ -22,8 +22,14 @@ namespace TextFileConverter.Library
             _inTemplate = inTemplate;
             _outTemplate = outTemplate;
 
-            if (_inTemplate.Columns.Count != _outTemplate.Columns.Count)
-                throw new ArgumentException("Number of columns in input and output templates must match.");
+            try
+            {
+                CompareTemplates();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error when initialising the file converter.", ex);
+            }
         }
 
         public void ConvertInputToOutput(string inPath, string outPath)
@@ -51,14 +57,20 @@ namespace TextFileConverter.Library
             }
             catch (Exception ex)
             {
-                throw ex;
+                throw new Exception("Error when converting input file to output file.", ex);
             }
+        }
+
+        private void CompareTemplates()
+        {
+            if (_inTemplate.Columns.Count != _outTemplate.Columns.Count)
+                throw new ArgumentException("Number of columns in input and output templates must match.");
         }
 
         private void CheckInputFile(string path)
         {
             if (!File.Exists(path))
-                throw new FileNotFoundException($"Input file was not found at path: {path}");
+                throw new FileNotFoundException($"Input file was not found at path: {path}.");
 
             var firstLine = File.ReadLines(path).First().Split(_inTemplate.ColumnSeperator);
 
@@ -70,7 +82,7 @@ namespace TextFileConverter.Library
                 for (int i = 0; i < firstLine.Length; i++)
                 {
                     if (!firstLine[i].Equals(_inTemplate.Columns[i].HeaderText))
-                        throw new FileFormatException($"{firstLine[i]} is an unexpected column header; expecting: {_inTemplate.Columns[i].HeaderText}");
+                        throw new FileFormatException($"{firstLine[i]} is an unexpected column header; expecting: {_inTemplate.Columns[i].HeaderText}.");
                 }
             }
         }
