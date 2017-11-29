@@ -48,8 +48,8 @@ namespace TextFileConverter.Library
         }
 
         public string HeaderSeperator { get; set; }
-        public char RowHeader { get; set; }
-        public char RowTerminator { get; set; }
+        public string RowHeader { get; set; }
+        public string RowTerminator { get; set; }
         public int ColumnPadding { get; set; }
         public string TruncatedMarker { get; set; }
         public List<OutColumn> Columns { get; set; }

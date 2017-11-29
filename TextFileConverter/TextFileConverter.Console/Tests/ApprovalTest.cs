@@ -32,8 +32,8 @@ namespace TextFileConverter.Library.Tests
             {
                 IsFirstLineHeader = true,
                 HeaderSeperator = "|=============================================================================|",
-                RowHeader = '|',
-                RowTerminator = '|',
+                RowHeader = "|",
+                RowTerminator = "|",
                 ColumnSeperator = '|',
                 ColumnPadding = 1,
                 TruncatedMarker = "...",
