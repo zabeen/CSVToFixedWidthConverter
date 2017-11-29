@@ -107,18 +107,18 @@ namespace TextFileConverter.Library
 
             if (!isHeaderText && outCol.IsDateTime)
             {
-                DateTime strDt;
-
                 try
                 {
-                    strDt = Convert.ToDateTime(str, new CultureInfo(_inTemplate.CultureName));
+                    var inCulture = CreateCultureInfo(_inTemplate.CultureName);
+                    var outCulture = CreateCultureInfo(_outTemplate.CultureName);
+
+                    DateTime strDt = Convert.ToDateTime(str, inCulture);
+                    str = strDt.ToString(outCol.DateTimeFormat, outCulture);
                 }
                 catch (FormatException)
                 {
-                    throw new FormatException($"{str} is not a valid date.");
-                }
-
-                str = strDt.ToString(outCol.DateTimeFormat, new CultureInfo(_outTemplate.CultureName));
+                    throw new FormatException($"Could not convert '{str}' to a valid date when using culture '{_inTemplate.CultureName}'.");
+                }              
             }
 
             if (outCol.IsFixedWidth)
@@ -131,6 +131,20 @@ namespace TextFileConverter.Library
 
             str = str.PadRight(str.Length + _outTemplate.ColumnPadding);
             str = str.PadLeft(str.Length + _outTemplate.ColumnPadding);
+        }
+
+        private CultureInfo CreateCultureInfo(string cultureName)
+        {
+            try
+            {
+                return (cultureName == null)
+                    ? CultureInfo.CurrentCulture
+                    : new CultureInfo(cultureName);
+            }
+            catch (CultureNotFoundException ex)
+            {
+                throw new CultureNotFoundException($"{ex.InvalidCultureName} is an invalid culture name.");
+            }
         }
     }
 }
