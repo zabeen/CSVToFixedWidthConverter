@@ -4,8 +4,6 @@ using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
-using TextFileConverter.Library;
 
 namespace TextFileConverter.Library.Tests
 {
