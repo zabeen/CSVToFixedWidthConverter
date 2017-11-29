@@ -11,11 +11,8 @@ namespace TextFileConverter.Library
 
     public class Converter
     {
-        public string Output => string.Join(Environment.NewLine,_output);
-
         private Input _inTemplate;
         private Output _outTemplate;
-        private List<string> _output = new List<string>();
 
         public Converter(Input inTemplate, Output outTemplate)
         {
@@ -34,23 +31,7 @@ namespace TextFileConverter.Library
             try
             {
                 CheckInputFile(inPath);
-                var lines = File.ReadAllLines(inPath);
-
-                if (_outTemplate.IsFirstLineHeader)
-                {
-                    AddNewLineToOutput(_outTemplate.Columns.Select(c => c.HeaderText).ToArray(), true);
-                    _output.Add(_outTemplate.HeaderSeperator);
-                }
-
-                for (int lineNo = 0; lineNo < lines.Length; lineNo++)
-                {
-                    if (lineNo == 0 && _inTemplate.IsFirstLineHeader)
-                        continue;
-
-                    AddNewLineToOutput(lines[lineNo].Split(_inTemplate.ColumnSeperator), false);
-                }
-
-                File.WriteAllLines(outPath, _output);
+                WriteOutputFile(outPath, File.ReadAllLines(inPath));
             }
             catch (Exception ex)
             {
@@ -87,35 +68,44 @@ namespace TextFileConverter.Library
             }
         }
 
-        private void AddNewLineToOutput(string[] cells, bool isHeader)
+        private void WriteOutputFile(string outPath, string[] lines)
         {
-            for (int colNo = 0; colNo < _inTemplate.Columns.Count; colNo++)
+            var output = new List<string>();
+
+            if (_outTemplate.IsFirstLineHeader)
             {
-                FormatStringAsOutput(ref cells[colNo], isHeader, _inTemplate.Columns[colNo], _outTemplate.Columns[colNo]);
+                output.Add(CreateNewLine(_outTemplate.Columns.Select(c => c.HeaderText).ToArray(), true));
+                output.Add(_outTemplate.HeaderSeperator);
             }
 
-            _output.Add(CreateNewLine(cells));
+            for (int lineNo = 0; lineNo < lines.Length; lineNo++)
+            {
+                if (lineNo == 0 && _inTemplate.IsFirstLineHeader)
+                    continue;
+
+                output.Add(CreateNewLine(lines[lineNo].Split(_inTemplate.ColumnSeperator), false));
+            }
+
+            File.WriteAllLines(outPath, output);
         }
 
-        private string CreateNewLine(IEnumerable<string> content)
+        private string CreateNewLine(string[] cells, bool isHeaderText)
         {
-            var cells = content.ToArray();
-            var sep = _outTemplate.ColumnSeperator.ToString();
-
             for (int i = 0; i < cells.Length; i++)
             {
-                cells[i] = cells[i].PadRight(cells[i].Length + _outTemplate.ColumnPadding);
-                cells[i] = cells[i].PadLeft(cells[i].Length + _outTemplate.ColumnPadding);
+                FormatCellContent(ref cells[i], isHeaderText, _outTemplate.Columns[i]);
             }
+
+            var sep = _outTemplate.ColumnSeperator.ToString();
 
             return $"{_outTemplate.RowHeader}{string.Join(sep, cells)}{_outTemplate.RowTerminator}";
         }
 
-        private void FormatStringAsOutput(ref string str, bool isHeader, Input.InColumn inCol, Output.OutColumn outCol)
+        private void FormatCellContent(ref string str, bool isHeaderText, Output.OutColumn outCol)
         {
             str = str.Trim();
 
-            if (!isHeader && outCol.IsDateTime)
+            if (!isHeaderText && outCol.IsDateTime)
             {
                 DateTime strDt;
 
@@ -138,6 +128,9 @@ namespace TextFileConverter.Library
                 else if (str.Length < outCol.MaxWidth)
                     str = (outCol.Pad == Pad.Left) ? str.PadLeft(outCol.MaxWidth) : str.PadRight(outCol.MaxWidth);
             }
+
+            str = str.PadRight(str.Length + _outTemplate.ColumnPadding);
+            str = str.PadLeft(str.Length + _outTemplate.ColumnPadding);
         }
     }
 }
