@@ -17,14 +17,14 @@ namespace TextFileConverter.Library
 
     public class Column
     {
-        public string HeaderText { get; set; }     
+        public string HeaderText { get; set; }
+        public string CultureName { get; set; }
     }
 
     public class Template
     {       
         public bool IsFirstLineHeader { get; set; }
         public char ColumnSeperator { get; set; }
-        public string CultureName { get; set; }
     }
 
     public class Input : Template
@@ -53,7 +53,6 @@ namespace TextFileConverter.Library
         public int ColumnPadding { get; set; }
         public string TruncatedMarker { get; set; }
         public List<OutColumn> Columns { get; set; }
-
     }
 
 }

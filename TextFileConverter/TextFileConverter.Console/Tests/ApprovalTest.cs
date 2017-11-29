@@ -20,19 +20,17 @@ namespace TextFileConverter.Library.Tests
             {
                 IsFirstLineHeader = true,
                 ColumnSeperator = ',',
-                CultureName = "en-GB",
                 Columns = new List<Input.InColumn>()
                 {
-                    new Input.InColumn(){HeaderText = "Publication Date"},
+                    new Input.InColumn(){HeaderText = "Publication Date", CultureName = "en-GB"},
                     new Input.InColumn(){HeaderText = "Title"},
                     new Input.InColumn(){HeaderText = "Authors"}
-                }              
+                }
             };
 
             var outTemplate = new Output()
             {
                 IsFirstLineHeader = true,
-                CultureName = "en-GB",
                 HeaderSeperator = "|=============================================================================|",
                 RowHeader = '|',
                 RowTerminator = '|',
@@ -41,7 +39,7 @@ namespace TextFileConverter.Library.Tests
                 TruncatedMarker = "...",
                 Columns = new List<Output.OutColumn>()
                 {
-                    new Output.OutColumn(){HeaderText = "Pub Date", IsFixedWidth = true, MaxWidth = 11, Pad = Pad.Right, IsDateTime = true, DateTimeFormat = "dd MMM yyyy"},
+                    new Output.OutColumn(){HeaderText = "Pub Date", IsFixedWidth = true, MaxWidth = 11, Pad = Pad.Right, IsDateTime = true, CultureName = "en-GB", DateTimeFormat = "dd MMM yyyy"},
                     new Output.OutColumn(){HeaderText = "Title", IsFixedWidth = true, MaxWidth = 27, Pad = Pad.Left},
                     new Output.OutColumn(){HeaderText = "Authors", IsFixedWidth = true, MaxWidth = 31, Pad = Pad.Right}
                 }

@@ -93,7 +93,7 @@ namespace TextFileConverter.Library
         {
             for (int i = 0; i < cells.Length; i++)
             {
-                FormatCellContent(ref cells[i], isHeaderText, _outTemplate.Columns[i]);
+                FormatCellContent(ref cells[i], isHeaderText, _inTemplate.Columns[i], _outTemplate.Columns[i]);
             }
 
             var sep = _outTemplate.ColumnSeperator.ToString();
@@ -101,7 +101,7 @@ namespace TextFileConverter.Library
             return $"{_outTemplate.RowHeader}{string.Join(sep, cells)}{_outTemplate.RowTerminator}";
         }
 
-        private void FormatCellContent(ref string str, bool isHeaderText, Output.OutColumn outCol)
+        private void FormatCellContent(ref string str, bool isHeaderText, Input.InColumn inCol, Output.OutColumn outCol)
         {
             str = str.Trim();
 
@@ -109,15 +109,15 @@ namespace TextFileConverter.Library
             {
                 try
                 {
-                    var inCulture = CreateCultureInfo(_inTemplate.CultureName);
-                    var outCulture = CreateCultureInfo(_outTemplate.CultureName);
+                    var inCulture = CreateCultureInfo(inCol.CultureName);
+                    var outCulture = CreateCultureInfo(outCol.CultureName);
 
                     DateTime strDt = Convert.ToDateTime(str, inCulture);
                     str = strDt.ToString(outCol.DateTimeFormat, outCulture);
                 }
                 catch (FormatException)
                 {
-                    throw new FormatException($"Could not convert '{str}' to a valid date when using culture '{_inTemplate.CultureName}'.");
+                    throw new FormatException($"Could not convert '{str}' to a valid date when using culture '{inCol.CultureName}'.");
                 }              
             }
 
