@@ -30,8 +30,8 @@ namespace TextFileConverter.Library
         {
             try
             {
-                CheckInputFile(inPath);
-                WriteOutputFile(outPath, File.ReadAllLines(inPath));
+                var lines = ReadInputFile(inPath);
+                WriteOutputFile(outPath, lines);
             }
             catch (Exception ex)
             {
@@ -48,7 +48,7 @@ namespace TextFileConverter.Library
             _outTemplate = outTemplate;
         }
 
-        private void CheckInputFile(string path)
+        private string[] ReadInputFile(string path)
         {
             if (!File.Exists(path))
                 throw new FileNotFoundException($"Input file was not found at path: {path}.");
@@ -66,6 +66,8 @@ namespace TextFileConverter.Library
                         throw new FileFormatException($"{firstLine[i]} is an unexpected column header; expecting: {_inTemplate.Columns[i].HeaderText}.");
                 }
             }
+
+            return File.ReadAllLines(path);
         }
 
         private void WriteOutputFile(string outPath, string[] lines)
